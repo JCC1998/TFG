@@ -1,8 +1,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-/data/*
-/results
-/samples/*
+data/*
+results/*
+samples/*
 dataset.txt
 results.txt
 mapa_aps.txt
