@@ -47,6 +47,7 @@ file = open("mapa_aps.txt", "w")
 file.write(json.dumps(mapa.tolist()))
 file.close()
 
+#lst = []
 lst = []
 
 for i in range(7):
@@ -82,9 +83,12 @@ for i in range(7):
         #imgplot = plt.imshow(img)
         #plt.show()  # img.save()
         #img.save("samples/image_data" + str(i) + "_" + df_mac.values[idx][0] + ".jpg")
-        lst.append(img_array.tolist())  # Usamos este método para que el array de numpy sea serializable
+        #--------lst.append(img_array.tolist())  # Usamos este método para que el array de numpy sea serializable
+        lst.append(img_array)
     print("S'ha acabat l'arxiu "+str(i))
 
-file = open("dataset.txt", "w")
-file.write(json.dumps(lst))
-file.close()
+np.save("dataset", lst)
+
+#file = open("dataset.txt", "w")
+#file.write(json.dumps(lst))
+#file.close()

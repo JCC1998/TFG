@@ -25,7 +25,7 @@ for idx in range(7):
     cursor.execute(my_query)
     lines = cursor.fetchall()
     f = open("data/data_"+str(idx)+".csv", "w")
-    print(str(lines[0]))
+    #print(str(lines[0]))
     writer = csv.writer(f)
     for i in lines:
         # f.write(str(i))

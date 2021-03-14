@@ -3,3 +3,6 @@ __pycache__/
 dataset.txt
 results.txt
 mapa_aps.txt
+dataset.npy
+generador.h5
+results.npy

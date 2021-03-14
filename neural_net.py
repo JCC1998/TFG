@@ -17,7 +17,7 @@ print(device_lib.list_local_devices())
 # Especificamos las dimensiones de las imágenes
 img_rows = 19
 img_cols = 63
-channels = 1
+channels = 1  # Este dato es para el rgb, en el caso de blanco y negro se podría eliminar para evitar problemas.
 
 # Dimensiones de las imagenes de entrada
 img_shape = (img_rows, img_cols, channels)
@@ -75,15 +75,15 @@ losses = []
 accuracies = []
 iteration_checkpoints = []
 
-f = open("dataset.txt", "r")
-dataset = json.loads(f.read())
+#f = open("dataset.npy", "r")
+#dataset = json.loads(f.read())
 
 
 def train(iterations, batch_size, sample_interval):
     print("Se ha empezado a entrenar la red neuronal")
     # Cargamos el MNIST dataset
     # (X_train, _), (_, _) = dataset
-    X_train = np.array(dataset)
+    X_train = np.load("dataset.npy")
     # Reescalamos la escala de grises a valores [1,-1]
     X_train = X_train / 127.5-1.0
     X_train = np.expand_dims(X_train, axis=3)
@@ -146,20 +146,29 @@ def sample_images(generator, image_grid_rows=4, image_grid_columns=4):
             #new_im.save("results/resultado_"+str(cnt)+"_"+str(datetime.now())+".jpg")
 
             # Normalizamos los valores porque son decimales
-            support_imgs = np.uint8(gen_imgs*255)
+            #--------------support_imgs = np.uint8(gen_imgs[i][j] * 255)
             # Añadimos a la lista la imagen que ha generado, usando el método para pasarlo a string
-            lst.append(support_imgs.tolist())
-        fig.show()
+            # lst.append(support_imgs.tolist())
+            #---------------lst.append(support_imgs)
+    fig.show()
+    print(gen_imgs.shape)
+    support_imgs = np.uint8(gen_imgs * 255)
+    lst.append(support_imgs)
 
 
 # Ejecutamos el modelo
 # Establecemos los parametros
-iterations = 20000
+iterations = 40000
 batch_size = 128
 sample_interval = 1000
 # Entrenamos la red neuronal
 lst = []
 train(iterations, batch_size, sample_interval)
-f = open("results.txt", "w")
-f.write(json.dumps(lst))
-f.close()
+#f = open("results.txt", "w")
+#f.write(json.dumps(lst))
+#f.close()
+
+np.save("results", lst)
+
+# Guardamos el generador en un archivo
+generator.save('generador.h5')
