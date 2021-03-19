@@ -9,35 +9,43 @@ import pandas as pd
 #results = json.loads(f.read())
 #f.close()
 
+# Cargamos los datos
 results = np.load("results.npy")
+# Transformamos el array al tamaño deseado para trabajar mejor
 results = np.reshape(results, (len(results)*len(results[0]), 19, 63))
 
+# Escogemos imagen aleatoria
 image = results[320]
 filtered_image = image
-filtered_image[filtered_image < 10] = 0
-filtered_image[filtered_image >= 10] = 255
+filtered_image[filtered_image < 10] = 0  # Asignación píxeles negros
+filtered_image[filtered_image >= 10] = 255 # Asignación píxeles blancos
 #print(filtered_image)
 
-img = Image.fromarray(filtered_image)
-imgplot = plt.imshow(img, cmap="gray_r")
-plt.show()
+#img = Image.fromarray(filtered_image)
+#imgplot = plt.imshow(img, cmap="gray_r")
+#plt.show()
 
+# Mostramos la imagen, hay que invertir los valores para que la imagen no se vea
+# la imagen negra y píxeles blancos para indicar los APs
 imgplot = plt.imshow(-filtered_image, cmap="gray")
 plt.show()
 
-test = np.zeros((len(image), len(image[0])))
-test.fill(255)
-canvis = 0
-for i in range(len(image)):
-    for j in range(len(image[0])):
-        if image[i][j] < 10:
-            canvis += 1
-            test[i][j] = 0
-print("--------------------" + str(canvis))
-print(test)
-img = Image.fromarray(test)
-imgplot = plt.imshow(img)
-plt.show()
+################### VERSIÓN ANGITUA ####################
+# Creación matriz del tamaño de una imagen
+#test = np.zeros((len(image), len(image[0])))
+# Toda la imagen en blanco
+# test.fill(255)
+# canvis = 0
+# for i in range(len(image)):
+#    for j in range(len(image[0])):
+#        if image[i][j] < 10:  Si está por vebajo del thershold, se asigna negro
+#            canvis += 1  Aumenta el numero de cambios para tenerlo en cuenta
+#            test[i][j] = 0
+# print("--------------------" + str(canvis))
+# print(test)
+# img = Image.fromarray(test)
+# imgplot = plt.imshow(img)
+# plt.show()
 
 # Guardamos una imagen aleatoria
 # test3 = np.array(results[300][15])
@@ -72,7 +80,7 @@ plt.show()
 #imgplot = plt.imshow(img2)
 #plt.show()
 
-
+# Cargamos mapa de APs
 f = open("mapa_aps.txt", "r")
 mapa_aps = json.loads(f.read())
 f.close()

@@ -2,6 +2,7 @@ import keras
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Cargamos el modelo de la GAN ya entrenado
 new_generator = keras.models.load_model('generador.h5')
 z_dim = 100
 
@@ -21,18 +22,7 @@ def sample_images(generator, image_grid_rows=4, image_grid_columns=4):
             axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='gray')
             axs[i, j].axis('off')
             cnt += 1
-            #axs[i, j].savefig("results/resultado_"+str(cnt)+"_"+str(datetime.now()))
-            #im = Image.fromarray((gen_imgs*255).astype(np.uint8))
-            #print(gen_imgs.shape)
-            #im = np.squeeze(gen_imgs, axis=2)
-            #new_im = Image.fromarray(im)
-            #new_im.save("results/resultado_"+str(cnt)+"_"+str(datetime.now())+".jpg")
-
-            # Normalizamos los valores porque son decimales
-            #support_imgs = np.uint8(gen_imgs*255)
-            # Añadimos a la lista la imagen que ha generado, usando el método para pasarlo a string
-            #lst.append(support_imgs.tolist())
     fig.show()
 
-
+# Mostramos una matriz de 4x4 de las imagenes generadas por la GAN obtenida del archivo
 sample_images(new_generator)

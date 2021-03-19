@@ -11,8 +11,6 @@ connection = mysql.connector.connect(
     database=BDDatabase
 )
 
-# Matriu de 17*25 per obtenir 425 diferents APs en una mateixa imatge
-# SELECT DISTINCT ap_name FROM temp_tfg
 
 cursor = connection.cursor()
 

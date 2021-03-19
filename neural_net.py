@@ -138,6 +138,7 @@ def sample_images(generator, image_grid_rows=4, image_grid_columns=4):
             axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='gray')
             axs[i, j].axis('off')
             cnt += 1
+            ####################### VERSIONES ANTIGUAS DE OBTENCION DE LA IMAGEN ########################
             #axs[i, j].savefig("results/resultado_"+str(cnt)+"_"+str(datetime.now()))
             #im = Image.fromarray((gen_imgs*255).astype(np.uint8))
             #print(gen_imgs.shape)
@@ -164,6 +165,7 @@ sample_interval = 1000
 # Entrenamos la red neuronal
 lst = []
 train(iterations, batch_size, sample_interval)
+###### VERSION ANTIGUA DE GUARDAR VALORES EN ARCHIVO .TXT ############
 #f = open("results.txt", "w")
 #f.write(json.dumps(lst))
 #f.close()
