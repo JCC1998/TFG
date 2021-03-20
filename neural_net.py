@@ -118,7 +118,8 @@ def train(iterations, batch_size, sample_interval):
             print("%d [D loss: %f, acc.: %2f%%] [G loss: %f]" % (iteration + 1, d_loss, 100.0*accuracy, g_loss))
             # Salida de las imagenes generadas
             sample_images(generator)
-
+            figure[idx].savefig("learning/"+(iteration + 1)+"-"+d_loss+"-"+100.0*accuracy+"-"+g_loss+".png")
+            idx += 1
 # Mostrar las imagenes generadas
 
 
@@ -138,23 +139,11 @@ def sample_images(generator, image_grid_rows=4, image_grid_columns=4):
             axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='gray')
             axs[i, j].axis('off')
             cnt += 1
-            ####################### VERSIONES ANTIGUAS DE OBTENCION DE LA IMAGEN ########################
-            #axs[i, j].savefig("results/resultado_"+str(cnt)+"_"+str(datetime.now()))
-            #im = Image.fromarray((gen_imgs*255).astype(np.uint8))
-            #print(gen_imgs.shape)
-            #im = np.squeeze(gen_imgs, axis=2)
-            #new_im = Image.fromarray(im)
-            #new_im.save("results/resultado_"+str(cnt)+"_"+str(datetime.now())+".jpg")
-
-            # Normalizamos los valores porque son decimales
-            #--------------support_imgs = np.uint8(gen_imgs[i][j] * 255)
-            # Añadimos a la lista la imagen que ha generado, usando el método para pasarlo a string
-            # lst.append(support_imgs.tolist())
-            #---------------lst.append(support_imgs)
     fig.show()
     print(gen_imgs.shape)
     support_imgs = np.uint8(gen_imgs * 255)
     lst.append(support_imgs)
+    figure.append(fig)
 
 
 # Ejecutamos el modelo
@@ -162,15 +151,15 @@ def sample_images(generator, image_grid_rows=4, image_grid_columns=4):
 iterations = 40000
 batch_size = 128
 sample_interval = 1000
-# Entrenamos la red neuronal
-lst = []
-train(iterations, batch_size, sample_interval)
-###### VERSION ANTIGUA DE GUARDAR VALORES EN ARCHIVO .TXT ############
-#f = open("results.txt", "w")
-#f.write(json.dumps(lst))
-#f.close()
 
-np.save("results", lst)
+idx = 0  # Índice de las imagenes generadas
+figure = []  # Array dónde se almacenan los samples 4x4 y sus parámetros
+lst = []  # Array dónde se almacenan todas las imágenes generadas durante el entrenamiento
+
+# Entrenamos la red neuronal
+train(iterations, batch_size, sample_interval)
+
+np.save("results", lst)  # Guardamos los resultados en un archivo
 
 # Guardamos el generador en un archivo
 generator.save('generador.h5')

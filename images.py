@@ -54,20 +54,15 @@ for i in range(7):
     print("S'ha començat l'arxiu " + str(i))
     # Hay que usar names y no columns para evitar eliminar el primer elemento
     df = pd.read_csv("data/data_"+str(i)+".csv", names=["date_time", "mac", "ap_name", "api_date"])
-    # print(df['mac'].head())
-    # df.columns = ["date_time", "mac", "ap_name", "api_date"]
 
     # Importante usar unique() para evitar generar imágenes duplicadas.
-    #df_mac = pd.DataFrame(df['mac'][0:5].unique())
     df_mac = pd.DataFrame(df['mac'].unique())
     for idx in range(len(df_mac)):
-        #print(df_mac.values[idx][0])
         img_array = np.zeros((columnas, filas))  # Inicialización de la matriz de la ruta
         img_array.fill(255)  # Llenamos los valores con 255, color blanco
         hashed = df['mac'] == df_mac.values[idx][0]
         # Obtención de todos los APs a los que se ha conectado el usuario
         df_ap = pd.DataFrame(df[hashed].ap_name)
-        #print(df_ap)
         # Nueva imagen
         #------img = Image.new('RGB', (1250, 850), color='WHITE')
         # Preparación para pintar en la imagen
@@ -78,8 +73,6 @@ for i in range(7):
             # Dibujar el cuadrado de 50 píxeles a partir de los indices obtenidos
             #------d.rectangle([indices[0][0]*50, indices[0][1]*50, indices[0][0]*50+50, indices[0][1]*50+50], fill='BLACK', width=1)
             img_array[indices[0][1]][indices[0][0]] = 0  # Píxel negro indicando el AP de la ruta
-            #print(indices)
-        #print("------------------")
         #imgplot = plt.imshow(img)
         #plt.show()  # img.save()
         #img.save("samples/image_data" + str(i) + "_" + df_mac.values[idx][0] + ".jpg")
@@ -89,6 +82,3 @@ for i in range(7):
 
 np.save("dataset", lst)
 
-#file = open("dataset.txt", "w")
-#file.write(json.dumps(lst))
-#file.close()
