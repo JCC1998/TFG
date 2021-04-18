@@ -6,3 +6,6 @@ mapa_aps.txt
 dataset.npy
 generador.h5
 results.npy
+dataset_duration.npy
+generador_duration.h5
+results_duration.npy

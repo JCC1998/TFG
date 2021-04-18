@@ -1,13 +1,13 @@
 import json
 import numpy as np
-from PIL import Image
 import matplotlib.pyplot as plt
-import pandas as pd
 
 # Cargamos los datos
 results = np.load("results.npy")
 # Transformamos el array al tamaño deseado para trabajar mejor
 results = np.reshape(results, (len(results)*len(results[0]), 19, 63))
+
+# todo: Hacer que el script sea para todos los resultados que se han generado, no sólo para una única imagen
 
 # Escogemos imagen aleatoria
 image = results[320]

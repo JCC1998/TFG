@@ -6,9 +6,6 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.optimizers import Adam
 import numpy as np
 import matplotlib.pyplot as plt
-import json
-from PIL import Image
-from datetime import datetime
 
 tf.config.list_physical_devices('GPU')
 
@@ -83,7 +80,7 @@ def train(iterations, batch_size, sample_interval):
     print("Se ha empezado a entrenar la red neuronal")
     # Cargamos el MNIST dataset
     # (X_train, _), (_, _) = dataset
-    X_train = np.load("dataset.npy")
+    X_train = np.load("dataset_duration.npy")
     # Reescalamos la escala de grises a valores [1,-1]
     X_train = X_train / 127.5-1.0
     X_train = np.expand_dims(X_train, axis=3)
@@ -93,9 +90,9 @@ def train(iterations, batch_size, sample_interval):
     fake = np.zeros((batch_size, 1))
 
     for iteration in range(iterations):
+        global indice
         # Escogemos un batch aleatorio
         idx = np.random.randint(0,X_train.shape[0], batch_size)
-        global indice
         imgs = X_train[idx]
         # Generamos el batch de las imagenes falsas
         z = np.random.normal(0, 1, (batch_size, 100))
@@ -119,7 +116,7 @@ def train(iterations, batch_size, sample_interval):
             print("%d [D loss: %f, acc.: %2f%%] [G loss: %f]" % (iteration + 1, d_loss, 100.0*accuracy, g_loss))
             # Salida de las imagenes generadas
             sample_images(generator)
-            figure[indice].savefig("learning/"+str(iteration + 1)+"-"+str(d_loss)+"-"+str(100.0*accuracy)+"-"+str(g_loss)+".png")
+            figure[indice].savefig("learning_duration/"+str(iteration + 1)+"-"+str(d_loss)+"-"+str(100.0*accuracy)+"-"+str(g_loss)+".png")
             indice += 1
 # Mostrar las imagenes generadas
 
@@ -137,7 +134,7 @@ def sample_images(generator, image_grid_rows=4, image_grid_columns=4):
     for i in range(image_grid_rows):
         for j in range(image_grid_columns):
             # Muestra la cuadricula de imagenes
-            axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='gray')
+            axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='cool')
             axs[i, j].axis('off')
             cnt += 1
     fig.show()
@@ -160,7 +157,7 @@ lst = []  # Array dónde se almacenan todas las imágenes generadas durante el e
 # Entrenamos la red neuronal
 train(iterations, batch_size, sample_interval)
 
-np.save("results", lst)  # Guardamos los resultados en un archivo
+np.save("results_duration", lst)  # Guardamos los resultados en un archivo
 
 # Guardamos el generador en un archivo
-generator.save('generador.h5')
+generator.save('generador_duration.h5')
