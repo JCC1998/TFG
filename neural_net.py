@@ -7,27 +7,57 @@ from keras.optimizers import Adam
 import numpy as np
 import matplotlib.pyplot as plt
 import json
-from PIL import Image
-from datetime import datetime
+from tqdm import tqdm
 
-tf.config.list_physical_devices('GPU')
+figure = []  # Array dónde se almacenan los samples 4x4 y sus parámetros
+lst = []  # Array dónde se almacenan todas las imágenes generadas durante el entrenamiento
+info_sample = []
 
-print(device_lib.list_local_devices())
-
-# Especificamos las dimensiones de las imágenes
-img_rows = 19
-img_cols = 63
-channels = 1  # Este dato es para el rgb, en el caso de blanco y negro se podría eliminar para evitar problemas.
-
-# Dimensiones de las imagenes de entrada
-img_shape = (img_rows, img_cols, channels)
 # Tamaño del vector de ruido, utilizado como input para el Generador
 z_dim = 100
+
+
+def execute_neural_net(dataset, img_rows, img_cols, iterations, ruta, ruta_generador, resultados, tipo_mapa):
+    global lst
+    global info_sample
+    tf.config.list_physical_devices('GPU')
+
+    # print(device_lib.list_local_devices())
+
+    # Especificamos las dimensiones de las imágenes
+    channels = 1  # Este dato es para el rgb, en el caso de blanco y negro se podría eliminar para evitar problemas.
+
+    # Dimensiones de las imagenes de entrada
+    img_shape = (img_rows, img_cols, channels)
+
+    discriminator = build_discriminator(img_shape)
+    discriminator.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
+    generator = build_generator(img_shape, img_rows, img_cols)
+    discriminator.trainable = False
+    gan = build_gan(generator, discriminator)
+    gan.compile(loss='binary_crossentropy', optimizer=Adam())
+
+    # Ejecutamos el modelo
+    # Establecemos los parametros
+    batch_size = 128
+    sample_interval = 1000
+
+    # Entrenamos la red neuronal
+    train(iterations, batch_size, sample_interval, generator, discriminator, gan, dataset, ruta, tipo_mapa)
+
+    np.save(resultados, lst)  # Guardamos los resultados en un archivo
+    f = open(ruta + "info.json", "w")
+    f.write("{ \"INFORMACION\" : " + json.dumps(info_sample) + " }")
+    f.close()
+
+    # Guardamos el generador en un archivo
+    generator.save(ruta_generador + '.h5')
 
 # Implementación del Generador
 
 
-def build_generator(img_shape, z_dim):
+def build_generator(img_shape, img_rows, img_cols):
+    global z_dim
     model = Sequential()
     # Capa totalmente conectada
     model.add(Dense(128, input_dim=z_dim))
@@ -62,40 +92,23 @@ def build_gan(generator, discriminator):
     return model
 
 
-discriminator = build_discriminator(img_shape)
-discriminator.compile(loss='binary_crossentropy', optimizer=Adam(), metrics=['accuracy'])
-generator = build_generator(img_shape, z_dim)
-discriminator.trainable = False
-gan = build_gan(generator, discriminator)
-gan.compile(loss='binary_crossentropy', optimizer=Adam())
-
-# Entrenamiento
-
-losses = []
-accuracies = []
-iteration_checkpoints = []
-
-#f = open("dataset.npy", "r")
-#dataset = json.loads(f.read())
-
-
-def train(iterations, batch_size, sample_interval):
+def train(iterations, batch_size, sample_interval, generator, discriminator, gan, dataset, ruta, tipo_mapa):
+    global figure
+    global info_sample
     print("Se ha empezado a entrenar la red neuronal")
-    # Cargamos el MNIST dataset
-    # (X_train, _), (_, _) = dataset
-    X_train = np.load("dataset.npy")
+    X_train = dataset
     # Reescalamos la escala de grises a valores [1,-1]
     X_train = X_train / 127.5-1.0
     X_train = np.expand_dims(X_train, axis=3)
     # Etiquetas para las imagenes reales (1)
-    real = np.ones((batch_size,1))
+    real = np.ones((batch_size, 1))
     # Etiquetas para las imagenes falsas (0)
     fake = np.zeros((batch_size, 1))
 
-    for iteration in range(iterations):
+    indice = 0
+    for iteration in tqdm(range(iterations)):
         # Escogemos un batch aleatorio
-        idx = np.random.randint(0,X_train.shape[0], batch_size)
-        global indice
+        idx = np.random.randint(0, X_train.shape[0], batch_size)
         imgs = X_train[idx]
         # Generamos el batch de las imagenes falsas
         z = np.random.normal(0, 1, (batch_size, 100))
@@ -112,19 +125,29 @@ def train(iterations, batch_size, sample_interval):
 
         if (iteration+1) % sample_interval == 0:
             # Guardamos las perdidas y aciertos para despues del entrenamiento
-            losses.append((d_loss, g_loss))
-            accuracies.append((100.0*accuracy))
-            iteration_checkpoints.append(iteration + 1)
+            # losses.append((d_loss, g_loss))
+            # accuracies.append((100.0*accuracy))
+            # iteration_checkpoints.append(iteration + 1)
             # Salida del progreso de entrenamiento
-            print("%d [D loss: %f, acc.: %2f%%] [G loss: %f]" % (iteration + 1, d_loss, 100.0*accuracy, g_loss))
+            # print("%d [D loss: %f, acc.: %2f%%] [G loss: %f]" % (iteration + 1, d_loss, 100.0*accuracy, g_loss))
             # Salida de las imagenes generadas
-            sample_images(generator)
-            figure[indice].savefig("learning/"+str(iteration + 1)+"-"+str(d_loss)+"-"+str(100.0*accuracy)+"-"+str(g_loss)+".png")
+            sample_images(generator, tipo_mapa)
+            figure[indice].savefig(ruta + "iteracion_" + str(iteration + 1) + ".png")
+            info = {
+                "Iteration": iteration+1,
+                "Discriminator_loss": d_loss,
+                "Accuracy": accuracy,
+                "Generator_loss": g_loss
+            }
+            info_sample.append(info)
             indice += 1
 # Mostrar las imagenes generadas
 
 
-def sample_images(generator, image_grid_rows=4, image_grid_columns=4):
+def sample_images(generator, tipo_mapa, image_grid_rows=4, image_grid_columns=4):
+    global z_dim
+    global figure
+    global lst
     # Ruido aleatorio del sample
     z = np.random.normal(0, 1, (image_grid_rows * image_grid_columns, z_dim))
     # Genera las imagenes a partir del ruido aleatorio
@@ -137,30 +160,14 @@ def sample_images(generator, image_grid_rows=4, image_grid_columns=4):
     for i in range(image_grid_rows):
         for j in range(image_grid_columns):
             # Muestra la cuadricula de imagenes
-            axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='gray')
+            axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap=tipo_mapa)
             axs[i, j].axis('off')
             cnt += 1
     fig.show()
-    print(gen_imgs.shape)
     support_imgs = np.uint8(gen_imgs * 255)
     lst.append(support_imgs)
     figure.append(fig)
 
 
-# Ejecutamos el modelo
-# Establecemos los parametros
-iterations = 20000
-batch_size = 128
-sample_interval = 1000
 
-indice = 0  # Índice de las imagenes generadas
-figure = []  # Array dónde se almacenan los samples 4x4 y sus parámetros
-lst = []  # Array dónde se almacenan todas las imágenes generadas durante el entrenamiento
 
-# Entrenamos la red neuronal
-train(iterations, batch_size, sample_interval)
-
-np.save("results", lst)  # Guardamos los resultados en un archivo
-
-# Guardamos el generador en un archivo
-generator.save('generador.h5')
