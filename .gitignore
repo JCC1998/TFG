@@ -9,3 +9,5 @@ results.npy
 dataset_duration.npy
 generador_duration.h5
 results_duration.npy
+results_taxis.npy
+generador_taxis.h5

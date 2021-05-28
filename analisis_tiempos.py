@@ -2,12 +2,13 @@ import pandas as pd
 from datetime import datetime as dt
 import datetime
 import numpy as np
-import json
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 
 def analizar_duraciones(mapa_aps, sample_days):
     lista_matrices = []
+    duraciones = []
     MAX_SECONDS_DAY = 86400
 
     for nfile in range(sample_days):
@@ -76,6 +77,24 @@ def analizar_duraciones(mapa_aps, sample_days):
                 # Se realiza una suma de 1 para poder distinguir los casos en que las duraciones
                 # son menores de 6 minutos con respecto al 0 de los APs en que el usuario no se ha conectado
                 matriz_usuario[indices[0][0]][indices[0][1]] = valor + 1
+                duraciones.append(valor + 1)
             lista_matrices.append(matriz_usuario)
     np.save("dataset_duration", lista_matrices)
+    distribucion_acumulada(duraciones)
+
+
+def distribucion_acumulada(lista):
+    x = np.sort(lista)
+    y = np.array(range(len(lista))) / float(len(lista))
+    # x_max = len(np.unique(lista))
+
+    fig, ax = plt.subplots()
+    ax.set_xlim(0, 260)  # ¿Sustituir 260 por x_max?
+    ax.plot(x, y)
+    plt.title('Cumulative distribution function')
+
+    ax.set_xlabel('intervals of 6 minutes')
+    ax.set_ylabel('$p$')
+
+    plt.show()
 

@@ -9,6 +9,8 @@ import generator
 import analisis_tiempos
 import keras
 import parser_duration
+import taxis
+import parser_taxis
 
 
 def cargar_mapa():
@@ -19,7 +21,7 @@ def cargar_mapa():
 
 
 if __name__ == '__main__':
-    opcion = "Duracion"
+    opcion = "Taxis"
     if opcion == "Rutas":
         print("Realizando análisis de las rutas")
         # Scripts del análisis de la UIB
@@ -92,7 +94,7 @@ if __name__ == '__main__':
                                           ruta_generador, archivo_resultados, tipo_mapa="cool")
 
         generador = keras.models.load_model('generador_duration.h5')
-        generator.generar_imagenes(generador, tipo_mapa="cool")
+        generator.generar_imagenes(generador, len(mapa), len(mapa[0]), tipo_mapa="cool")
 
         resultados = np.load("results_duration.npy")
         parser_duration.parser(resultados)
@@ -102,7 +104,22 @@ if __name__ == '__main__':
         # Ejecutar parser_duration.py
 
     elif opcion == "Taxis":
-        print("En proceso")
+        size = 32
+        if not os.path.exists("generador_taxis.h5"):
+            data = taxis.analizar_taxis(size)
+            dataset = np.array(data)
+            iteraciones = 20000
+            ruta_aprendizaje = "learning_taxis/"
+            ruta_generador = "generador_taxis"
+            archivo_resultados = "results_taxis"
+            neural_net.execute_neural_net(dataset, len(dataset[0]), len(dataset[0][0]), iteraciones, ruta_aprendizaje,
+                                          ruta_generador, archivo_resultados, tipo_mapa="gray")
+
+        generador = keras.models.load_model("generador_taxis.h5")
+        generator.generar_imagenes(generador, size, size, tipo_mapa="gray")
+
+        resultados = np.load("results_taxis.npy")
+        parser_taxis.parser(resultados, size, size)
         # Scripts de los taxis.
         # Análisis del dataset
         # Normalización de las coordenadas
