@@ -97,4 +97,3 @@ def distribucion_acumulada(lista):
     ax.set_ylabel('$p$')
 
     plt.show()
-

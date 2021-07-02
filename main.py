@@ -11,6 +11,8 @@ import keras
 import parser_duration
 import taxis
 import parser_taxis
+import glob
+import informacio_entrenament
 
 
 def cargar_mapa():
@@ -21,8 +23,8 @@ def cargar_mapa():
 
 
 if __name__ == '__main__':
-    opcion = "Taxis"
-    if opcion == "Rutas":
+    opcio = "Rutas"
+    if opcio == "Rutas":
         print("Realizando análisis de las rutas")
         # Scripts del análisis de la UIB
 
@@ -46,27 +48,35 @@ if __name__ == '__main__':
         else:
             mapa = cargar_mapa()
 
+        ruta_aprendizaje = "learning/"
         if not os.path.exists("generador.h5"):
             dataset = np.load("dataset.npy")
-            iteraciones = 20000
-            ruta_aprendizaje = "learning/"
+            iteraciones = 30000
             ruta_generador = "generador"
             archivo_resultados = "results"
+
+            for CleanUp in glob.glob(ruta_aprendizaje+"*.*"):
+                # print(CleanUp)
+                if not CleanUp.endswith('.gitignore'):
+                    os.remove(CleanUp)
+
             neural_net.execute_neural_net(dataset, len(mapa), len(mapa[0]), iteraciones, ruta_aprendizaje,
                                           ruta_generador, archivo_resultados, tipo_mapa="gray")
 
         resultados = np.load("results.npy")
-        parser_rutas.mostrar_resultados(resultados)
+        parser_rutas.mostrar_resultados(resultados, len(mapa), len(mapa[0]))
 
-        generador = keras.models.load_model('generador.h5')
-        generator.generar_imagenes(generador, tipo_mapa="gray")
+        generador = keras.models.load_model('generador.h5', compile=False)
+        generator.generar_imagenes(generador, len(mapa), len(mapa[0]), tipo_mapa="gray")
+
+        informacio_entrenament.informacio_entrenament(ruta_aprendizaje)
         # Ejecutar files.py si no existen los datos. Necsario tener el xampp activado
         # Ejecutar imagenes.py para conseguir el dataset para la red neuronal
         # Ejecutar neural_net.py
         # Guardar el generator.py
         # Ejecutar parser_rutas.py
 
-    elif opcion == "Duracion":
+    elif opcio == "Duracion":
         print("Realizando análisis de las duraciones")
         # Comprobación de si existen los archivos con los datos, en caso contrario, ejecutar script
         # IMPORTANTE!!!! Es necesario tener el xampp activado para poder acceder a la base de datos
@@ -83,43 +93,59 @@ if __name__ == '__main__':
         else:
             mapa = cargar_mapa()
 
+        ruta_aprendizaje = "learning_duration/"
         if not os.path.exists("generador_duration.h5"):
             analisis_tiempos.analizar_duraciones(mapa, sample_days)
             dataset = np.load("dataset_duration.npy")
             iteraciones = 20000
-            ruta_aprendizaje = "learning_duration/"
             ruta_generador = "generador_duration"
             archivo_resultados = "results_duration"
+
+            for CleanUp in glob.glob(ruta_aprendizaje+"*.*"):
+                # print(CleanUp)
+                if not CleanUp.endswith('.gitignore'):
+                    os.remove(CleanUp)
+
             neural_net.execute_neural_net(dataset, len(mapa), len(mapa[0]), iteraciones, ruta_aprendizaje,
                                           ruta_generador, archivo_resultados, tipo_mapa="cool")
 
-        generador = keras.models.load_model('generador_duration.h5')
+        generador = keras.models.load_model('generador_duration.h5', compile=False)
         generator.generar_imagenes(generador, len(mapa), len(mapa[0]), tipo_mapa="cool")
 
         resultados = np.load("results_duration.npy")
-        parser_duration.parser(resultados)
+        parser_duration.parser(resultados, len(mapa), len(mapa[0]))
+
+        informacio_entrenament.informacio_entrenament(ruta_aprendizaje)
         # Ejecutar análisis_tiempos.py
         # Ejecutar neural_net_duration.py
         # Guardar el generator_duration.py
         # Ejecutar parser_duration.py
 
-    elif opcion == "Taxis":
+    elif opcio == "Taxis":
+        print("Realizando análisis de las rutas de taxis")
         size = 32
+        ruta_aprendizaje = "learning_taxis/"
         if not os.path.exists("generador_taxis.h5"):
             data = taxis.analizar_taxis(size)
             dataset = np.array(data)
             iteraciones = 20000
-            ruta_aprendizaje = "learning_taxis/"
             ruta_generador = "generador_taxis"
             archivo_resultados = "results_taxis"
+
+            for CleanUp in glob.glob(ruta_aprendizaje+"*.*"):
+                # print(CleanUp)
+                if not CleanUp.endswith('.gitignore'):
+                    os.remove(CleanUp)
+
             neural_net.execute_neural_net(dataset, len(dataset[0]), len(dataset[0][0]), iteraciones, ruta_aprendizaje,
                                           ruta_generador, archivo_resultados, tipo_mapa="gray")
 
-        generador = keras.models.load_model("generador_taxis.h5")
+        generador = keras.models.load_model("generador_taxis.h5", compile=False)
         generator.generar_imagenes(generador, size, size, tipo_mapa="gray")
 
         resultados = np.load("results_taxis.npy")
         parser_taxis.parser(resultados, size, size)
+        informacio_entrenament.informacio_entrenament(ruta_aprendizaje)
         # Scripts de los taxis.
         # Análisis del dataset
         # Normalización de las coordenadas

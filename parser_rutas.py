@@ -3,19 +3,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def mostrar_resultados(resultados):
+def mostrar_resultados(resultados, dim1, dim2):
     # Transformamos el array al tamaño deseado para trabajar mejor
-    results = np.reshape(resultados, (len(resultados) * len(resultados[0]), 19, 63))
+    results = np.reshape(resultados, (len(resultados) * len(resultados[0]), dim1, dim2))
 
     # todo: Hacer que el script sea para todos los resultados que se han generado, no sólo para una única imagen
 
     # Escogemos imagen aleatoria
-    image = results[250]
+    image = results[400]
     imgplot = plt.imshow(image, cmap="gray")
     plt.show()
     filtered_image = image
-    filtered_image[filtered_image < 10] = 0  # Asignación píxeles negros
-    filtered_image[filtered_image >= 10] = 255  # Asignación píxeles blancos
+    filtered_image[filtered_image < 5] = 0  # Asignación píxeles negros
+    filtered_image[filtered_image >= 5] = 255  # Asignación píxeles blancos
 
     # Mostramos la imagen, hay que invertir los valores para que la imagen no se vea
     # la imagen negra y píxeles blancos para indicar los APs

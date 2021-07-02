@@ -3,8 +3,8 @@ import json
 import matplotlib.pyplot as plt
 
 
-def parser(resultados):
-    datos = np.reshape(resultados, (len(resultados)*len(resultados[0]), 19, 63))
+def parser(resultados, dim1, dim2):
+    datos = np.reshape(resultados, (len(resultados)*len(resultados[0]), dim1, dim2))
 
     imagen = datos[317]
     imgplot = plt.imshow(imagen, cmap="cool")

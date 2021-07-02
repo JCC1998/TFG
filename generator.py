@@ -33,7 +33,7 @@ def generar_imagenes(new_generator, dim1, dim2, tipo_mapa):
 
     global lst
     sample_images(new_generator, z_dim, tipo_mapa)
-    lst = np.reshape(lst, (len(lst)*len(lst[0]), dim1, dim2))
-    for idx in range(len(lst)):
-        imgplot = plt.imshow(lst[idx], cmap=tipo_mapa)
+    lista = np.reshape(lst, (len(lst)*len(lst[0]), dim1, dim2))
+    for idx in range(len(lista)):
+        imgplot = plt.imshow(lista[idx], cmap=tipo_mapa)
         plt.show()
