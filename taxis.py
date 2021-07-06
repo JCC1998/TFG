@@ -17,7 +17,7 @@ def analizar_taxis(size):
     print("Min lat: " + str(min_latitude)+", min lon: " + str(min_longitude) + ", max lat: " +
           str(max_latitude) + ", max alt: " + str(max_longitude))
     print("Diff lat: " + str(diff_lat) + ", Diff lon: " + str(diff_lon))
-    print(str(len(data["taxi id"].unique())))
+    # print(str(len(data["taxi id"].unique())))
 
     lst_mapa = []
     id_list = data["taxi id"].unique()

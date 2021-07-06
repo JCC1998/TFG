@@ -13,6 +13,8 @@ import taxis
 import parser_taxis
 import glob
 import informacio_entrenament
+import random
+import matplotlib.pyplot as plt
 
 
 def cargar_mapa():
@@ -23,7 +25,7 @@ def cargar_mapa():
 
 
 if __name__ == '__main__':
-    opcio = "Rutas"
+    opcio = "Duracion"
     if opcio == "Rutas":
         print("Realizando análisis de las rutas")
         # Scripts del análisis de la UIB
@@ -93,11 +95,13 @@ if __name__ == '__main__':
         else:
             mapa = cargar_mapa()
 
+        if not os.path.exists("dataset_duration.npy"):
+            analisis_tiempos.analizar_duraciones(mapa, sample_days)
+
         ruta_aprendizaje = "learning_duration/"
         if not os.path.exists("generador_duration.h5"):
-            analisis_tiempos.analizar_duraciones(mapa, sample_days)
             dataset = np.load("dataset_duration.npy")
-            iteraciones = 20000
+            iteraciones = 30000
             ruta_generador = "generador_duration"
             archivo_resultados = "results_duration"
 
@@ -128,7 +132,7 @@ if __name__ == '__main__':
         if not os.path.exists("generador_taxis.h5"):
             data = taxis.analizar_taxis(size)
             dataset = np.array(data)
-            iteraciones = 20000
+            iteraciones = 30000
             ruta_generador = "generador_taxis"
             archivo_resultados = "results_taxis"
 
@@ -143,11 +147,36 @@ if __name__ == '__main__':
         generador = keras.models.load_model("generador_taxis.h5", compile=False)
         generator.generar_imagenes(generador, size, size, tipo_mapa="gray")
 
-        resultados = np.load("results_taxis.npy")
-        parser_taxis.parser(resultados, size, size)
+        #resultados = np.load("results_taxis.npy")
+        #parser_taxis.parser(resultados, size, size)
         informacio_entrenament.informacio_entrenament(ruta_aprendizaje)
         # Scripts de los taxis.
         # Análisis del dataset
         # Normalización de las coordenadas
         # Uso de la red neuronal
         # Parser de los resultados obtenidos
+    elif opcio == "Experiment":
+        dim = 28
+        datos = []
+        for i in range(50):
+            a = np.zeros((dim, dim), int)
+            a.fill(255)
+            choice = random.randint(0, 1)
+            if choice == 0:
+                np.fill_diagonal(a, random.randint(0, 10))
+            else:
+                np.fill_diagonal(np.flipud(a), random.randint(0, 10))
+            datos.append(a)
+        datos = np.array(datos)
+        print(datos[0])
+        plt.imshow(datos[0], cmap="gray")
+        plt.show()
+
+        if not os.path.exists("generador_experiment.h5"):
+            ruta = "experiment/"
+            ruta_g = "generador_experiment"
+            arch_result = "resultados_experiment"
+            neural_net.execute_neural_net(datos, dim, dim, 10000, ruta, ruta_g, arch_result, tipo_mapa="gray")
+
+        generador = keras.models.load_model("generador_experiment.h5")
+        generator.generar_imagenes(generador, dim, dim, tipo_mapa="gray")
